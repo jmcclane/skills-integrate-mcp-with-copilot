@@ -5,14 +5,31 @@ A super simple FastAPI application that allows students to view and sign up
 for extracurricular activities at Mergington High School.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response, Cookie, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 import os
 from pathlib import Path
+from typing import Optional
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
+
+TEACHER_USERNAME = "teacher"
+TEACHER_PASSWORD = "admin123"
+TEACHER_SESSION_COOKIE = "teacher_session"
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+def require_teacher(teacher_session: Optional[str] = Cookie(default=None, alias=TEACHER_SESSION_COOKIE)):
+    if teacher_session != "authenticated":
+        raise HTTPException(status_code=401, detail="Teacher login required")
+    return True
 
 # Mount the static files directory
 current_dir = Path(__file__).parent
@@ -88,8 +105,34 @@ def get_activities():
     return activities
 
 
+@app.get("/session")
+def get_session(teacher_session: Optional[str] = Cookie(default=None, alias=TEACHER_SESSION_COOKIE)):
+    return {"is_teacher": teacher_session == "authenticated"}
+
+
+@app.post("/login")
+def login(payload: LoginRequest, response: Response):
+    if payload.username != TEACHER_USERNAME or payload.password != TEACHER_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    response.set_cookie(
+        key=TEACHER_SESSION_COOKIE,
+        value="authenticated",
+        httponly=True,
+        samesite="lax",
+        secure=False,
+    )
+    return {"message": "Teacher login successful"}
+
+
+@app.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key=TEACHER_SESSION_COOKIE)
+    return {"message": "Logged out"}
+
+
 @app.post("/activities/{activity_name}/signup")
-def signup_for_activity(activity_name: str, email: str):
+def signup_for_activity(activity_name: str, email: str, _: bool = Depends(require_teacher)):
     """Sign up a student for an activity"""
     # Validate activity exists
     if activity_name not in activities:
@@ -111,7 +154,7 @@ def signup_for_activity(activity_name: str, email: str):
 
 
 @app.delete("/activities/{activity_name}/unregister")
-def unregister_from_activity(activity_name: str, email: str):
+def unregister_from_activity(activity_name: str, email: str, _: bool = Depends(require_teacher)):
     """Unregister a student from an activity"""
     # Validate activity exists
     if activity_name not in activities:
