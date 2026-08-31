@@ -16,7 +16,6 @@ body {
 }
 
 header {
-  text-align: center;
   padding: 20px 0;
   margin-bottom: 30px;
   background-color: #1a237e;
@@ -24,8 +23,105 @@ header {
   border-radius: 5px;
 }
 
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px;
+}
+
+.header-text {
+  text-align: center;
+  flex: 1;
+}
+
 header h1 {
   margin-bottom: 10px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.user-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.12);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.user-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.user-icon {
+  font-size: 1.2rem;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  color: #333;
+  border-radius: 12px;
+  width: min(90vw, 420px);
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.close-button {
+  background: none;
+  color: #333;
+  padding: 4px 8px;
+  font-size: 1.1rem;
+}
+
+.close-button:hover {
+  background-color: #f0f0f0;
+}
+
+.login-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.secondary-button {
+  background-color: #6b7280;
+}
+
+.secondary-button:hover {
+  background-color: #4b5563;
+}
+
+.admin-note {
+  margin-bottom: 16px;
+  color: #555;
+  font-size: 0.96rem;
 }
 
 main {
@@ -37,7 +133,9 @@ main {
 
 @media (min-width: 768px) {
   main {
+    display: grid;
     grid-template-columns: 2fr 1fr;
+    align-items: start;
   }
 }
 
